@@ -1,0 +1,5 @@
+{
+  "name": "GeminiFlow",
+  "description": "An AI-powered diagram generation application that converts text descriptions into visual flowcharts using Google Gemini models.",
+  "requestFramePermissions": []
+}
