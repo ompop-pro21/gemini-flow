@@ -4,7 +4,7 @@
 
 GeminiFlow is a modern, intelligent diagramming tool that turns natural language descriptions into professional flowcharts instantly. Built with React, Vite, and the Google Gemini API.
 
-![Version](https://img.shields.io/badge/version-1.2-blue.svg)
+![Version](https://img.shields.io/badge/version-1.3-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 ## 🚀 Features
@@ -14,9 +14,10 @@ GeminiFlow is a modern, intelligent diagramming tool that turns natural language
   - **Top-Bottom**: Standard hierarchical tree view.
   - **Zig-Zag**: Snake-like layout for linear processes.
   - **Orthogonal Routing**: Clean, right-angled connections between nodes.
-- **📱 Mobile Optimized (v1.2)**:
+- **📱 Mobile Optimized (v1.3)**:
   - Fully responsive design with a collapsible sidebar.
   - **Touch Gestures**: Pinch-to-zoom and pan support on mobile/tablet.
+  - **Double-Tap to Edit**: Quickly rename nodes on the fly.
   - Visual cues and animated hints for mobile users.
 - **🎛️ Customization**:
   - **Verbosity Control**: Choose between Precise, Moderate, or Exhaustive labels.
@@ -78,4 +79,4 @@ This project is ready for deployment on **Netlify** or **Render**.
 ## 📜 License
 
 © 2025 Om Pophale. All rights reserved.
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](LICENSE).
