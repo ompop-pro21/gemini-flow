@@ -30,6 +30,10 @@ const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ data }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [lastMouse, setLastMouse] = useState({ x: 0, y: 0 });
 
+  const [lastTouch, setLastTouch] = useState<{x: number, y: number} | null>(null);
+  const [initialPinchDist, setInitialPinchDist] = useState<number | null>(null);
+  const [initialZoom, setInitialZoom] = useState<number>(1);
+
   // Auto-fit when data changes
   useEffect(() => {
     if (data && data.nodes.length > 0) {
@@ -70,6 +74,47 @@ const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ data }) => {
 
   const handleMouseUp = () => {
     setIsDragging(false);
+  };
+
+  // Touch Handlers
+  const getDistance = (touch1: React.Touch, touch2: React.Touch) => {
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      // Single touch - Pan
+      setLastTouch({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+    } else if (e.touches.length === 2) {
+      // Double touch - Pinch Zoom
+      const dist = getDistance(e.touches[0], e.touches[1]);
+      setInitialPinchDist(dist);
+      setInitialZoom(zoom);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault(); // Prevent scrolling the page while interacting with canvas
+    
+    if (e.touches.length === 1 && lastTouch) {
+      // Pan
+      const dx = e.touches[0].clientX - lastTouch.x;
+      const dy = e.touches[0].clientY - lastTouch.y;
+      setPan(p => ({ x: p.x + dx, y: p.y + dy }));
+      setLastTouch({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+    } else if (e.touches.length === 2 && initialPinchDist) {
+      // Pinch Zoom
+      const dist = getDistance(e.touches[0], e.touches[1]);
+      const scale = dist / initialPinchDist;
+      setZoom(Math.max(0.1, Math.min(3, initialZoom * scale)));
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setLastTouch(null);
+    setInitialPinchDist(null);
   };
 
   const handleWheel = (e: React.WheelEvent) => {
@@ -217,6 +262,9 @@ const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ data }) => {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         onWheel={handleWheel}
         style={{ backgroundColor: '#f8fafc' }} // Inline style for background check
       >

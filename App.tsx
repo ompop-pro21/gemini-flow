@@ -131,15 +131,19 @@ const App: React.FC = () => {
     setIsLoading(true);
     setError(null);
     setData(null);
-    // Close sidebar on mobile after starting generation
-    if (window.innerWidth < 768) {
-      setIsSidebarOpen(false);
-    }
+    
+    // NOTE: We keep the sidebar open on mobile while loading so the user sees the spinner.
+    // We will close it in the finally block or after success.
 
     try {
       const rawData = await generateFlowchart(prompt, verbosity, density);
       const layoutData = computeLayout(rawData, layoutDirection);
       setData(layoutData);
+      
+      // Close sidebar on mobile ONLY after successful generation
+      if (window.innerWidth < 768) {
+        setIsSidebarOpen(false);
+      }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred");
     } finally {
@@ -166,14 +170,27 @@ const App: React.FC = () => {
           </div>
           <h1 className="text-lg font-bold text-slate-900 tracking-tight">GeminiFlow</h1>
         </div>
-        <button 
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isSidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
-          </svg>
-        </button>
+        
+        <div className="flex items-center gap-3">
+           {/* Animated Arrow Hint (Only visible when sidebar is closed and no data) */}
+           {!isSidebarOpen && !data && !isLoading && (
+             <div className="flex items-center animate-bounce text-green-600 font-medium text-xs mr-1">
+               <span>Start Here</span>
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+               </svg>
+             </div>
+           )}
+           
+           <button 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className={`p-2 rounded-lg transition-colors ${!isSidebarOpen && !data ? 'bg-green-50 text-green-600 ring-2 ring-green-400 ring-offset-1' : 'text-slate-600 hover:bg-slate-100'}`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isSidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Mobile Overlay */}
