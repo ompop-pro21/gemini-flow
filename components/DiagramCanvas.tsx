@@ -3,6 +3,7 @@ import { FlowchartData, FlowchartNode, NodeShape } from '../types';
 
 interface DiagramCanvasProps {
   data: FlowchartData | null;
+  onNodeUpdate?: (nodeId: string, newLabel: string) => void;
 }
 
 // Inline colors for export safety
@@ -23,7 +24,7 @@ const COLORS = {
   purple50: '#faf5ff',
 };
 
-const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ data }) => {
+const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ data, onNodeUpdate }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -33,6 +34,10 @@ const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ data }) => {
   const [lastTouch, setLastTouch] = useState<{x: number, y: number} | null>(null);
   const [initialPinchDist, setInitialPinchDist] = useState<number | null>(null);
   const [initialZoom, setInitialZoom] = useState<number>(1);
+
+  // Editing State
+  const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
 
   // Auto-fit when data changes
   useEffect(() => {
@@ -60,6 +65,8 @@ const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ data }) => {
   }, [data]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    // Don't drag if clicking on an input
+    if ((e.target as HTMLElement).tagName === 'TEXTAREA') return;
     setIsDragging(true);
     setLastMouse({ x: e.clientX, y: e.clientY });
   };
@@ -84,6 +91,9 @@ const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ data }) => {
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    // Don't drag if touching an input
+    if ((e.target as HTMLElement).tagName === 'TEXTAREA') return;
+
     if (e.touches.length === 1) {
       // Single touch - Pan
       setLastTouch({ x: e.touches[0].clientX, y: e.touches[0].clientY });
@@ -96,6 +106,9 @@ const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ data }) => {
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
+    // Don't drag if touching an input
+    if ((e.target as HTMLElement).tagName === 'TEXTAREA') return;
+
     e.preventDefault(); // Prevent scrolling the page while interacting with canvas
     
     if (e.touches.length === 1 && lastTouch) {
@@ -121,6 +134,27 @@ const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ data }) => {
     const zoomFactor = 0.1;
     const delta = e.deltaY > 0 ? -zoomFactor : zoomFactor;
     setZoom(z => Math.max(0.1, Math.min(3, z + delta)));
+  };
+
+  // Editing Handlers
+  const handleNodeDoubleClick = (e: React.MouseEvent, node: FlowchartNode) => {
+    e.stopPropagation();
+    setEditingNodeId(node.id);
+    setEditValue(node.label);
+  };
+
+  const handleInputBlur = () => {
+    if (editingNodeId && onNodeUpdate) {
+      onNodeUpdate(editingNodeId, editValue);
+    }
+    setEditingNodeId(null);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleInputBlur();
+    }
   };
 
   if (!data || data.nodes.length === 0) {
@@ -158,6 +192,7 @@ const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ data }) => {
     const h = 90;
     const cx = node.x || 0;
     const cy = node.y || 0;
+    const isEditing = editingNodeId === node.id;
 
     // Wrap text logic
     const maxChars = 22; 
@@ -213,25 +248,44 @@ const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ data }) => {
     }
 
     return (
-      <g key={node.id}>
+      <g 
+        key={node.id} 
+        onDoubleClick={(e) => handleNodeDoubleClick(e, node)}
+        className="cursor-pointer hover:opacity-90 transition-opacity"
+      >
         {shapeJsx}
-        <text 
-          x={cx} 
-          y={startY} 
-          textAnchor="middle" 
-          dominantBaseline="middle"
-          fill={COLORS.slate700}
-          fontSize="12"
-          fontFamily="sans-serif" 
-          fontWeight="500"
-          style={{ pointerEvents: 'none' }}
-        >
-          {lines.map((line, i) => (
-            <tspan key={i} x={cx} dy={i === 0 ? 3 : lineHeight}>
-              {line}
-            </tspan>
-          ))}
-        </text>
+        
+        {isEditing ? (
+          <foreignObject x={cx - w/2 + 10} y={cy - h/2 + 10} width={w - 20} height={h - 20}>
+            <textarea
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              onBlur={handleInputBlur}
+              onKeyDown={handleKeyDown}
+              autoFocus
+              className="w-full h-full bg-transparent text-center text-xs font-medium text-slate-800 resize-none outline-none border-none overflow-hidden"
+              style={{ fontFamily: 'sans-serif' }}
+            />
+          </foreignObject>
+        ) : (
+          <text 
+            x={cx} 
+            y={startY} 
+            textAnchor="middle" 
+            dominantBaseline="middle"
+            fill={COLORS.slate700}
+            fontSize="12"
+            fontFamily="sans-serif" 
+            fontWeight="500"
+            style={{ pointerEvents: 'none', userSelect: 'none' }}
+          >
+            {lines.map((line, i) => (
+              <tspan key={i} x={cx} dy={i === 0 ? 3 : lineHeight}>
+                {line}
+              </tspan>
+            ))}
+          </text>
+        )}
       </g>
     );
   };

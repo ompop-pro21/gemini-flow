@@ -160,6 +160,19 @@ const App: React.FC = () => {
     }
   };
 
+  const handleNodeUpdate = (nodeId: string, newLabel: string) => {
+    if (!data) return;
+    
+    const updatedNodes = data.nodes.map(node => 
+      node.id === nodeId ? { ...node, label: newLabel } : node
+    );
+    
+    setData({
+      ...data,
+      nodes: updatedNodes
+    });
+  };
+
   return (
     <div className="flex h-screen w-full bg-white font-sans text-slate-900 overflow-hidden">
       {/* Mobile Header */}
@@ -377,7 +390,7 @@ const App: React.FC = () => {
 
         <div className="p-4 border-t border-slate-200 bg-slate-50 text-center">
            <p className="text-xs text-slate-500 font-medium">
-             GeminiFlow v1.2
+             GeminiFlow v1.3
            </p>
            <p className="text-[10px] text-slate-400 mt-1">
              &copy; {new Date().getFullYear()} Om Pophale. All rights reserved.
@@ -447,7 +460,7 @@ const App: React.FC = () => {
 
         {/* Visualization */}
         <div className="flex-1 bg-slate-50 relative overflow-hidden shadow-inner">
-           <DiagramCanvas data={data} />
+           <DiagramCanvas data={data} onNodeUpdate={handleNodeUpdate} />
         </div>
       </main>
     </div>
