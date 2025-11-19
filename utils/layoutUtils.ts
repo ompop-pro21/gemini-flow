@@ -1,9 +1,9 @@
 import { FlowchartData, FlowchartNode, LayoutDirection, NodeShape } from "../types";
 
-const NODE_WIDTH = 180;
-const NODE_HEIGHT = 90;
-const X_GAP = 50;
-const Y_GAP = 80;
+const NODE_WIDTH = 220;
+const NODE_HEIGHT = 140;
+const X_GAP = 60;
+const Y_GAP = 100;
 const CANVAS_PADDING = 50;
 const SNAKE_COLUMNS = 4; // Increased columns to reduce height (wider zig-zag)
 

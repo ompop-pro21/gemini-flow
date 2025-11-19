@@ -188,17 +188,20 @@ const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ data, onNodeUpdate }) => 
   };
 
   const renderShape = (node: FlowchartNode) => {
-    const w = 180; 
-    const h = 90;
+    const w = 220; 
+    const h = 140;
     const cx = node.x || 0;
     const cy = node.y || 0;
     const isEditing = editingNodeId === node.id;
 
     // Wrap text logic
-    const maxChars = 22; 
+    const maxChars = 30; 
     const lines = wrapText(node.label, maxChars);
     const lineHeight = 14;
     const startY = cy - ((lines.length - 1) * lineHeight) / 2;
+    
+    // Dynamic font size for very long text
+    const fontSize = node.label.length > 150 ? "11" : "12";
 
     let shapeJsx;
     let fill = COLORS.white;
@@ -275,7 +278,7 @@ const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ data, onNodeUpdate }) => 
             textAnchor="middle" 
             dominantBaseline="middle"
             fill={COLORS.slate700}
-            fontSize="12"
+            fontSize={fontSize}
             fontFamily="sans-serif" 
             fontWeight="500"
             style={{ pointerEvents: 'none', userSelect: 'none' }}
