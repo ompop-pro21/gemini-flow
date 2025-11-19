@@ -263,6 +263,7 @@ const DiagramCanvas: React.FC<DiagramCanvasProps> = ({ data, onNodeUpdate }) => 
               onBlur={handleInputBlur}
               onKeyDown={handleKeyDown}
               autoFocus
+              enterKeyHint="done"
               className="w-full h-full bg-transparent text-center text-xs font-medium text-slate-800 resize-none outline-none border-none overflow-hidden"
               style={{ fontFamily: 'sans-serif' }}
             />
