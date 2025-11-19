@@ -349,8 +349,11 @@ const App: React.FC = () => {
         </div>
 
         <div className="p-4 border-t border-slate-200 bg-slate-50 text-center">
-           <p className="text-[10px] text-slate-400">
+           <p className="text-xs text-slate-500 font-medium">
              GeminiFlow v1.0
+           </p>
+           <p className="text-[10px] text-slate-400 mt-1">
+             &copy; {new Date().getFullYear()} Om Pophale. All rights reserved.
            </p>
         </div>
       </aside>
