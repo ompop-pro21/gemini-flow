@@ -1,4 +1,4 @@
-import { FlowchartData, FlowchartNode, LayoutDirection } from "../types";
+import { FlowchartData, FlowchartNode, LayoutDirection, NodeShape } from "../types";
 
 const NODE_WIDTH = 180;
 const NODE_HEIGHT = 90;
@@ -8,9 +8,34 @@ const CANVAS_PADDING = 50;
 const SNAKE_COLUMNS = 4; // Increased columns to reduce height (wider zig-zag)
 
 export const computeLayout = (data: FlowchartData, direction: LayoutDirection = LayoutDirection.TOP_BOTTOM): FlowchartData => {
-  const { nodes, edges } = data;
+  let { nodes, edges } = data;
   
   if (nodes.length === 0) return data;
+
+  // --- SANITIZATION STEP ---
+  // 1. Remove edges that point to non-existent nodes
+  const nodeIds = new Set(nodes.map(n => n.id));
+  edges = edges.filter(e => nodeIds.has(e.source) && nodeIds.has(e.target));
+
+  // 2. Remove self-loops
+  edges = edges.filter(e => e.source !== e.target);
+
+  // 3. Fix "Ghost" Edges from Decision Nodes
+  // Decision nodes (Diamonds) MUST have labeled edges (Yes/No).
+  // Sometimes the AI generates a redundant unlabeled edge along with the labeled ones.
+  // We filter out unlabeled edges ONLY if the source is a Diamond node.
+  const diamondNodeIds = new Set(nodes.filter(n => n.shape === NodeShape.DIAMOND).map(n => n.id));
+  edges = edges.filter(e => {
+    if (diamondNodeIds.has(e.source)) {
+      // If source is a diamond, keep edge ONLY if it has a label
+      return e.label && e.label.trim().length > 0;
+    }
+    return true;
+  });
+  
+  // Update data with sanitized edges
+  data.edges = edges;
+  // -------------------------
 
   const nodeMap = new Map<string, FlowchartNode>();
   nodes.forEach(node => {
