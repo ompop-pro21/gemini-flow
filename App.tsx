@@ -206,17 +206,27 @@ const App: React.FC = () => {
         fixed md:relative inset-y-0 left-0 z-50 w-80 md:w-96 bg-white border-r border-slate-200 flex flex-col shadow-xl md:shadow-none transition-transform duration-300 ease-in-out
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
-        <div className="p-6 border-b border-slate-100 hidden md:block">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md">
-              GF
+        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md">
+                GF
+              </div>
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight">GeminiFlow</h1>
             </div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">GeminiFlow</h1>
+            <p className="text-slate-500 text-xs">AI-Powered Diagram Generation</p>
           </div>
-          <p className="text-slate-500 text-xs">AI-Powered Diagram Generation</p>
+          <button 
+            onClick={() => setIsSidebarOpen(false)}
+            className="md:hidden p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 mt-16 md:mt-0">
+        <div className="flex-1 overflow-y-auto p-6">
           <form onSubmit={handleGenerate} className="space-y-6">
             <div>
               <label htmlFor="prompt" className="block text-sm font-semibold text-slate-700 mb-2">
@@ -367,7 +377,7 @@ const App: React.FC = () => {
 
         <div className="p-4 border-t border-slate-200 bg-slate-50 text-center">
            <p className="text-xs text-slate-500 font-medium">
-             GeminiFlow v1.0
+             GeminiFlow v1.2
            </p>
            <p className="text-[10px] text-slate-400 mt-1">
              &copy; {new Date().getFullYear()} Om Pophale. All rights reserved.
