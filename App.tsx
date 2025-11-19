@@ -122,6 +122,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<FlowchartData | null>(null);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleGenerate = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,6 +131,10 @@ const App: React.FC = () => {
     setIsLoading(true);
     setError(null);
     setData(null);
+    // Close sidebar on mobile after starting generation
+    if (window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
 
     try {
       const rawData = await generateFlowchart(prompt, verbosity, density);
@@ -152,10 +157,39 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-full bg-white font-sans text-slate-900">
+    <div className="flex h-screen w-full bg-white font-sans text-slate-900 overflow-hidden">
+      {/* Mobile Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 z-30">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md">
+            GF
+          </div>
+          <h1 className="text-lg font-bold text-slate-900 tracking-tight">GeminiFlow</h1>
+        </div>
+        <button 
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isSidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-96 flex-shrink-0 border-r border-slate-200 bg-white flex flex-col z-20 shadow-xl">
-        <div className="p-6 border-b border-slate-100">
+      <aside className={`
+        fixed md:relative inset-y-0 left-0 z-50 w-80 md:w-96 bg-white border-r border-slate-200 flex flex-col shadow-xl md:shadow-none transition-transform duration-300 ease-in-out
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        <div className="p-6 border-b border-slate-100 hidden md:block">
           <div className="flex items-center gap-2 mb-1">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md">
               GF
@@ -165,7 +199,7 @@ const App: React.FC = () => {
           <p className="text-slate-500 text-xs">AI-Powered Diagram Generation</p>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 mt-16 md:mt-0">
           <form onSubmit={handleGenerate} className="space-y-6">
             <div>
               <label htmlFor="prompt" className="block text-sm font-semibold text-slate-700 mb-2">
@@ -322,11 +356,11 @@ const App: React.FC = () => {
       </aside>
 
       {/* Main Canvas Area */}
-      <main className="flex-1 flex flex-col h-full relative overflow-hidden">
+      <main className="flex-1 flex flex-col h-full relative overflow-hidden pt-16 md:pt-0">
         {/* Toolbar */}
-        <div className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-6 flex-shrink-0">
+        <div className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-4 md:px-6 flex-shrink-0">
            <div className="flex items-center gap-4">
-              <h2 className="font-semibold text-slate-800">Flowchart Canvas</h2>
+              <h2 className="font-semibold text-slate-800 text-sm md:text-base">Flowchart Canvas</h2>
               {data && (
                 <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
                    {data.nodes.length} Nodes
@@ -337,12 +371,12 @@ const App: React.FC = () => {
               <button 
                 onClick={() => setShowExportMenu(!showExportMenu)}
                 disabled={!data}
-                className="py-2 px-4 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded hover:bg-slate-50 transition-colors disabled:opacity-50 flex items-center gap-2"
+                className="py-2 px-3 md:px-4 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded hover:bg-slate-50 transition-colors disabled:opacity-50 flex items-center gap-2"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                Export
+                <span className="hidden md:inline">Export</span>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
