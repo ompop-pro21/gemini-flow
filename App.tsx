@@ -176,8 +176,8 @@ const App: React.FC = () => {
            {!isSidebarOpen && !data && !isLoading && (
              <div className="flex items-center animate-bounce text-green-600 font-medium text-xs mr-1">
                <span>Start Here</span>
-               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 ml-1 -rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 14c4-4 10-4 16 0m-5-5l5 5-5 5" />
                </svg>
              </div>
            )}
